@@ -17,10 +17,8 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 
-import lombok.extern.slf4j.Slf4j;
 
 @Service("REGISTRATION_PATIENT_TTG")
-@Slf4j
 public class NoTreatmentControlCallbackQueryProcessor implements RegistrationCallbackQueryProcessor {
 
     @Autowired private StateMachineCache stateCache;

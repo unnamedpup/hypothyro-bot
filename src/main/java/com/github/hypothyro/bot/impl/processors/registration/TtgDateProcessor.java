@@ -1,8 +1,5 @@
 package com.github.hypothyro.bot.impl.processors.registration;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import com.github.hypothyro.bot.cache.registration.RegistrationCache;
@@ -11,6 +8,8 @@ import com.github.hypothyro.bot.config.RegistrationConfig;
 import com.github.hypothyro.bot.processors.RegistrationProcessor;
 import com.github.hypothyro.domain.Patient;
 import com.github.hypothyro.domain.PatientState;
+import com.github.hypothyro.repository.PatientRepository;
+import com.github.hypothyro.service.impl.DefaultDateChecker;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 
 import lombok.extern.slf4j.Slf4j;
 
+// FIXME: Fix tooOld method
 @Service("REGISTRATION_TTG_DATE")
 @Slf4j
 public class TtgDateProcessor implements RegistrationProcessor {
@@ -26,8 +26,8 @@ public class TtgDateProcessor implements RegistrationProcessor {
     @Autowired private StateMachineCache stateCache;
     @Autowired private RegistrationCache registrationCache;
     @Autowired private RegistrationConfig config;
+    @Autowired private PatientRepository repository;
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     @Override
     public SendMessage processRegistrationField(Message msg) {
@@ -35,28 +35,27 @@ public class TtgDateProcessor implements RegistrationProcessor {
 
         try {
             Patient patient = registrationCache.getPatientById(patientId);
-            long thsDate = convertStringToUnix(msg.getText());
+            DefaultDateChecker date_checker = new DefaultDateChecker(msg.getText());
+            long thsDate = date_checker.getDate();
+
             patient.setThsDate(thsDate);
+            repository.save(patient);
             registrationCache.savePatient(patient);
 
-            return ok(patientId);
+            if (date_checker.isEarlierThen2Months()) {
+                return ok(patientId);
+            } else {
+                return tooOld(patientId);
+            }
+
+
         } catch (DateTimeParseException e) {
             return error(patientId);
         }
 
     }
 
-
-    private Long convertStringToUnix(String in) {
-        LocalDate date = LocalDate.parse(in.replace("\\s", "").replace("(-)|(\\/)", "."), formatter);
-        log.info("Date: {}", date);
-        ZoneId zoneId = ZoneId.systemDefault();
-        log.info("ZondeId: {}", zoneId);
-        return date.atStartOfDay(zoneId).toEpochSecond();
-    }
-
     private SendMessage ok(Long patientId) {
-
         SendMessage toSend = new SendMessage();
         toSend.setChatId(patientId.toString());
         toSend.setText(config.thsRes);
@@ -69,7 +68,16 @@ public class TtgDateProcessor implements RegistrationProcessor {
     private SendMessage error(Long patientId) {
         SendMessage toSend = new SendMessage();
         toSend.setChatId(patientId.toString());
-        toSend.setText("Wrong date format! Must be dd.mm.yyyy");
+        toSend.setText("Неправильный формат данных.(введите в формате дд.мм.гггг)");
+
+        return toSend;
+    }
+
+    private SendMessage tooOld(Long patientId) {
+        SendMessage toSend = new SendMessage();
+        toSend.setChatId(patientId.toString());
+        toSend.setText("Нужно сдать новый анализ");
+        stateCache.setState(patientId, PatientState.AWAY);
 
         return toSend;
     }

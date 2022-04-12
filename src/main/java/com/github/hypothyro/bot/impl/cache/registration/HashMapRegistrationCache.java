@@ -2,6 +2,7 @@ package com.github.hypothyro.bot.impl.cache.registration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import com.github.hypothyro.bot.cache.registration.RegistrationCache;
 import com.github.hypothyro.domain.Patient;
@@ -22,14 +23,13 @@ public class HashMapRegistrationCache implements RegistrationCache {
         Patient patientFromCache = cache.get(userId);
 
         if (patientFromCache == null) {
-            // Patient patientFromDb = repository.getById(userId);
-            Patient patientFromDb = null;
-            if (patientFromDb == null) {
+            Optional<Patient> patientFromDb = repository.findById(userId);
+            if (patientFromDb.isEmpty()) {
                 patientFromCache = Patient.builder().id(userId).build();
                 setPatient(userId, patientFromCache);
             } else {
-                savePatient(patientFromDb);
-                return patientFromDb;
+                savePatient(patientFromDb.get());
+                return patientFromDb.get();
             }
 
         }

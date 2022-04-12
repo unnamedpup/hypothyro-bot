@@ -41,6 +41,10 @@ public enum RegistrationCallback {
     REGISTRATION_RAD_YES { @Override public String getPrfix() { return "REGISTRATION_RAD"; } },
     REGISTRATION_RAD_NO { @Override public String getPrfix() { return "REGISTRATION_RAD"; } },
 
+    CONTROL_PRETREATMENT_NAME_EUTIROX { @Override public String getPrfix() { return "CONTROL_PRETREATMENT_NAME"; } },
+    CONTROL_PRETREATMENT_NAME_L_TYROXIN { @Override public String getPrfix() { return "CONTROL_PRETREATMENT_NAME"; } },
+    CONTROL_PRETREATMENT_NAME_OTHER { @Override public String getPrfix() { return "CONTROL_PRETREATMENT_NAME"; } },
+    CONTROL_PRETREATMENT_NAME_NOTHING { @Override public String getPrfix() { return "CONTROL_PRETREATMENT_NAME"; } },
     ;
 
     public abstract String getPrfix();

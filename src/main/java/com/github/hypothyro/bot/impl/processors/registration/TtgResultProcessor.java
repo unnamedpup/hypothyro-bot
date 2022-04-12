@@ -1,12 +1,19 @@
 package com.github.hypothyro.bot.impl.processors.registration;
 
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.github.hypothyro.bot.cache.registration.RegistrationCache;
 import com.github.hypothyro.bot.cache.states.StateMachineCache;
 import com.github.hypothyro.bot.config.RegistrationConfig;
+import com.github.hypothyro.bot.keyboards.control.ControlKeyboards;
 import com.github.hypothyro.bot.keyboards.registration.RegistrationKeyboards;
 import com.github.hypothyro.bot.processors.RegistrationProcessor;
+import com.github.hypothyro.domain.Notification;
 import com.github.hypothyro.domain.Patient;
 import com.github.hypothyro.domain.PatientState;
+import com.github.hypothyro.repository.NotificationRepository;
 import com.github.hypothyro.repository.PatientRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +33,11 @@ public class TtgResultProcessor implements RegistrationProcessor {
     @Autowired private RegistrationConfig config;
     @Autowired private PatientRepository repository;
     @Autowired private RegistrationKeyboards keyboards;
+    @Autowired private ControlKeyboards controlKeyboards;
+    @Autowired private NotificationRepository notificationRepository;
+
+    private final int WEEK_IN_SECONDS = 60 * 60 * 24 * 7;
+    private final int MONTH_IN_SECONDS = WEEK_IN_SECONDS * 4;
 
     @Override
     public SendMessage processRegistrationField(Message msg) {
@@ -34,12 +46,12 @@ public class TtgResultProcessor implements RegistrationProcessor {
         // End of registration
         try {
             Patient patient = registrationCache.getPatientById(patientId);
-            patient.setThsResult(Integer.parseInt(msg.getText()));
+            patient.setThsResult(Double.parseDouble(msg.getText()));
 
             SendMessage toSend = new SendMessage();
             toSend.setChatId(patientId.toString());
             StringBuilder sb = new StringBuilder();
-            int ttg = patient.getThsResult();
+            double ttg = patient.getThsResult();
 
             if (patient.getTreatment() == 0.0) {
                 if (ttg < patient.getLowthslev()) {
@@ -91,10 +103,10 @@ public class TtgResultProcessor implements RegistrationProcessor {
                         sb.append(config.hasTreatmentTtgFirst);
                         toSend.setText(sb.toString());
                         toSend.setReplyMarkup(keyboards.getPatientLolTtgKeyboard());
+                        notifyPatient(patient);
                         return toSend;
                     } else {
-                        // add age
-                        double mkg = (patient.getWeight() < 55) ? 12.5 : 25.0;
+                        double mkg = (patient.getWeight() < 55 || patient.getAge() > 70) ? 12.5 : 25.0;
                         sb.append("Вам, вероятно, нужно снизить дозу на ");
                         sb.append(mkg);
                         sb.append(" мкг. Затем следует проконтролировать ТТГ через 2 месяца.");
@@ -103,8 +115,7 @@ public class TtgResultProcessor implements RegistrationProcessor {
                     }
 
                 } else if (ttg > patient.getUpthslev()) {
-                        // add age
-                        double mkg = (patient.getWeight() < 55) ? 12.5 : 25.0;
+                        double mkg = (patient.getWeight() < 55 || patient.getAge() > 70) ? 12.5 : 25.0;
                         sb.append("Вам, вероятно, нужно увеличить дозу на ");
                         sb.append(mkg);
                         sb.append(" мкг. Затем следует проконтролировать ТТГ через 2 месяца.");
@@ -135,16 +146,41 @@ public class TtgResultProcessor implements RegistrationProcessor {
             repository.save(patient);
             stateCache.setState(patientId, PatientState.AWAY);
 
+            toSend.setReplyMarkup(controlKeyboards.controlButtons);
+            
+            notifyPatient(patient);
+            
+
             return toSend;
         } catch (NumberFormatException e) {
             return error(patientId);
         }
     }
 
+
+    private void notifyPatient(Patient patient) {
+        notificationRepository.deleteByPatientId(patient.getId());
+
+        Set<Notification> notifications = new HashSet<>();
+        for (int i = 0; i < 5; ++i) {
+            long date = patient.getThsDate() + MONTH_IN_SECONDS * Math.round(patient.getCheckinterval()) + WEEK_IN_SECONDS * i;
+            if (Instant.now().getEpochSecond() < date) {
+                Notification notification = Notification.builder()
+                    .patientId(patient.getId())
+                    .text("Пришло время контроля ТТГ!\nЕсли вы сдали анализы, то введите, для этого нажмите кнопку \"Отправить новый результат\"")
+                    .date(date)
+                    .build();
+                notifications.add(notification);
+            }
+        }
+
+        notificationRepository.saveAll(notifications);
+    }
+
     private SendMessage error(Long patientId) {
         SendMessage toSend = new SendMessage();
         toSend.setChatId(patientId.toString());
-        toSend.setText("You must input a number");
+        toSend.setText("Неверный формат данных. Пришлите число");
 
         return toSend;
     }

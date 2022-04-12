@@ -27,9 +27,10 @@ public class RegistrationUpdateHandler implements UpdateHandler {
     public SendMessage handle(Update update) {
         Message msg = update.getMessage();
 
-        log.info("Handling registration text {}", msg.getText());
 
         String patientState = stateCache.getStateById(msg.getChatId()).toString();
+
+        log.info("Handling registration text {}, state {}", msg.getText(), patientState);
 
         SendMessage toSend = registrationProcessorChain.get(patientState).processRegistrationField(msg);
 

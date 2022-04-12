@@ -1,4 +1,4 @@
-package com.github.hypothyro.bot.impl.processors.registration.callback;
+/* package com.github.hypothyro.bot.impl.processors.registration.callback;
 
 import com.github.hypothyro.bot.cache.registration.RegistrationCache;
 import com.github.hypothyro.bot.cache.states.StateMachineCache;
@@ -38,7 +38,7 @@ public class TreatmentDrugCallbackQueryProcessor implements RegistrationCallback
             patient.setTreatment(0.0);
             toSend.setText("LALALALA");
         } else {
-            toSend.setText("Send treatment:");
+            toSend.setText("Введите дозу препарата после операции(в мкг):");
             stateCache.setState(patientId, PatientState.REGISTRATION_TREATMENT_MKG);
         }
         registrationCache.savePatient(patient);
@@ -46,4 +46,4 @@ public class TreatmentDrugCallbackQueryProcessor implements RegistrationCallback
         return toSend;
     }
 }
-
+ */

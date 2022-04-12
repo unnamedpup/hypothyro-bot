@@ -38,7 +38,7 @@ public class PretreatmentDrugRegistrationCallbackQueryProcessor implements Regis
         if (patient.getDateOperation() == null) {
             if (drugName.equals("nothing")) {
                 patient.setPretreatment(0.0);
-                toSend.setText("Когда была операция ?");
+                toSend.setText("Когда была операция ?(в формате ДД.ММ.ГГГГ)");
                 stateCache.setState(patientId, PatientState.REGISTRATION_DOP);
             } else {
                 patient.setPretreatmentDrug(drugName);

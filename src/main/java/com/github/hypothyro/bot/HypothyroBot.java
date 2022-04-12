@@ -13,7 +13,7 @@ public class HypothyroBot extends TelegramLongPollingBot {
     @Autowired
     Dispatcher dispatcher;
 
-    private static final String botToken = "";
+    private static final String botToken = "2006315544:AAFN23XTt2IFDkBmhKdjZPp7PB6jzswm2Bs";
     private static final String botUsername = "hypothyro_bot";
 
     @Override

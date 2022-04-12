@@ -1,10 +1,5 @@
 package com.github.hypothyro.bot.impl.processors.registration;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-
 import com.github.hypothyro.bot.cache.registration.RegistrationCache;
 import com.github.hypothyro.bot.cache.states.StateMachineCache;
 import com.github.hypothyro.bot.keyboards.registration.RegistrationKeyboards;
@@ -19,18 +14,14 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 
 import lombok.extern.slf4j.Slf4j;
 
+// FIXME: Decompose
 @Service("REGISTRATION_WEIGHT")
 @Slf4j
 public class WeightRegistrationProcessor implements RegistrationProcessor{
 
-    @Autowired
-    private StateMachineCache stateCache;
-
-    @Autowired
-    private RegistrationCache registrationCache;
-
-    @Autowired
-    private RegistrationKeyboards keyboards;
+    @Autowired private StateMachineCache stateCache;
+    @Autowired private RegistrationCache registrationCache;
+    @Autowired private RegistrationKeyboards keyboards;
 
     @Override
     public SendMessage processRegistrationField(Message msg) {
@@ -38,7 +29,11 @@ public class WeightRegistrationProcessor implements RegistrationProcessor{
 
         Patient patient = registrationCache.getPatientById(patientId);
         boolean canBePregnant = canBePregnant(patient);
-        patient.setWeight(Integer.parseInt(msg.getText()));
+        try {
+            patient.setWeight(Integer.parseInt(msg.getText()));
+        } catch(NumberFormatException e) {
+            return error(patientId);
+        }
         patient.setCanBePregnant(canBePregnant);
         registrationCache.savePatient(patient);
 
@@ -51,7 +46,7 @@ public class WeightRegistrationProcessor implements RegistrationProcessor{
 
 
     private boolean canBePregnant(Patient patient) {
-        int age = countAge(patient);
+        int age = patient.getAge();
         return patient.getGender() == 1 && age >= 15 && age <= 45;
     }
 
@@ -66,8 +61,6 @@ public class WeightRegistrationProcessor implements RegistrationProcessor{
     }
 
     private SendMessage continueRegistration(Patient patient) {
-        stateCache.setState(patient.getId(), PatientState.REGISTRATION_TREATMENT_MKG);
-
         return SendMessage.builder()
             .text("До операции приходилось ли принимать тироксин ? (Выберите из списка)")
             .replyMarkup(keyboards.getDrugRegistrationKeyboard())
@@ -75,14 +68,11 @@ public class WeightRegistrationProcessor implements RegistrationProcessor{
             .build();
     }
 
-
-    private int countAge(Patient patient) {
-        ZoneId zoneId = ZoneId.systemDefault();
-        LocalDate date = LocalDate.now();
-
-        int yearNow = date.atStartOfDay(zoneId).getYear();
-        int yearDob = LocalDateTime.ofEpochSecond(patient.getDateOfBirthday(), 0, ZoneOffset.UTC).getYear();
-
-        return yearNow - yearDob;
+    private SendMessage error(long patientId) {
+        SendMessage toSend = new SendMessage();
+        toSend.setChatId(Long.toString(patientId));
+        toSend.setText("Неверный формат данных. Пришлите целое число");
+        return toSend;
     }
 }
+

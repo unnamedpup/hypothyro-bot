@@ -17,8 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Dispatcher {
 
-    @Autowired
-    List<UpdateQualifier> updateQualifiers;
+    @Autowired List<UpdateQualifier> updateQualifiers;
+
     private UpdateHandler errorHandler = new UpdateHandler() {
         @Override
         public SendMessage handle(Update update) {
@@ -28,7 +28,7 @@ public class Dispatcher {
 
             return SendMessage.builder()
                 .chatId(chatId.toString())
-                .text("Wrong data input. Eternal error")
+                .text("Неизвестная ошибка.\nОбратитесь за помощью по нику @unnamedpup")
                 .build();
         }
     };

@@ -44,7 +44,7 @@ public class PregnantRegistrationCallbackQueryProcessor implements RegistrationC
         registrationCache.deletePatientById(patient.getId());
 
         return SendMessage.builder()
-            .text("Pregnant is not supported")
+            .text("На данный момент ведение беременности не поддерживается. Спасибо, до свидания.")
             .chatId(patient.getId().toString())
             .build();
             

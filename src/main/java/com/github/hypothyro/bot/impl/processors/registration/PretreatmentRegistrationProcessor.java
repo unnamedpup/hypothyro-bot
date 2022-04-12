@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service("REGISTRATION_PRETREATMENT_MKG")
-@Slf4j
 public class PretreatmentRegistrationProcessor implements RegistrationProcessor {
 
     @Autowired private RegistrationCache registrationCache;
@@ -26,31 +23,34 @@ public class PretreatmentRegistrationProcessor implements RegistrationProcessor 
 
     public SendMessage processRegistrationField(Message msg) {
         Patient patient = registrationCache.getPatientById(msg.getChatId());
-        double drugMkg = Double.parseDouble(msg.getText());
 
         SendMessage toSend = new SendMessage();
         toSend.setChatId(patient.getId().toString());
+        double drugMkg;
 
         try {
-            if (patient.getDateOperation() == null) {
-                patient.setPretreatment(drugMkg);
-                if (patient.getPretreatment() == 0) {
-                    toSend.setText("Введите дозу:");
-                    stateCache.setState(patient.getId(), PatientState.REGISTRATION_DOP);
-                } else {
-                    toSend.setText("Когда была операция?(В формате ДД.ММ.ГГГГ)");
-                    stateCache.setState(patient.getId(), PatientState.REGISTRATION_DOP);
-                }
-            } else {
-                patient.setTreatment(drugMkg);
-                toSend.setText(config.confirmRegistrationn);
-                toSend.setReplyMarkup(keyboards.getVerifyRegistrationFinishKeyboard());
-            }
-            registrationCache.savePatient(patient);
+            drugMkg = Double.parseDouble(msg.getText());
         } catch (NumberFormatException e) {
             toSend.setText("Неверный формат данных. Пришлите число");
+            return toSend;
         }
 
+        if (patient.getDateOperation() == null) {
+            patient.setPretreatment(drugMkg);
+            if (patient.getPretreatment() == 0) {
+                toSend.setText("Введите дозу:");
+                stateCache.setState(patient.getId(), PatientState.REGISTRATION_DOP);
+            } else {
+                toSend.setText("Когда была операция?(В формате ДД.ММ.ГГГГ)");
+                stateCache.setState(patient.getId(), PatientState.REGISTRATION_DOP);
+            }
+        } else {
+            patient.setTreatment(drugMkg);
+            toSend.setText(config.confirmRegistrationn);
+            toSend.setReplyMarkup(keyboards.getVerifyRegistrationFinishKeyboard());
+        }
+
+        registrationCache.savePatient(patient);
         return toSend;
     }
 }

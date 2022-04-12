@@ -212,15 +212,15 @@ public class RegistrationKeyboards {
         btn1.setCallbackData(RegistrationCallback.REGISTRATION_PATHOLOGY_1.toString());
 
         InlineKeyboardButton btn2 = new InlineKeyboardButton();
-        btn2.setText("ПоловинаТиреоидит Хашимото / диффузный токсический зоб");
+        btn2.setText("Тиреоидит Хашимото / диффузный токсический зоб");
         btn2.setCallbackData(RegistrationCallback.REGISTRATION_PATHOLOGY_2.toString());
 
         InlineKeyboardButton btn3 = new InlineKeyboardButton();
-        btn3.setText("ПерешеекПапиллярная/фолликулярная карцинома");
+        btn3.setText("Папиллярная/фолликулярная карцинома");
         btn3.setCallbackData(RegistrationCallback.REGISTRATION_PATHOLOGY_3.toString());
 
         InlineKeyboardButton btn4 = new InlineKeyboardButton();
-        btn4.setText("Оставлен остаток долиМедуллярная карцинома");
+        btn4.setText("Медуллярная карцинома");
         btn4.setCallbackData(RegistrationCallback.REGISTRATION_PATHOLOGY_4.toString());
 
         InlineKeyboardButton btn5 = new InlineKeyboardButton();

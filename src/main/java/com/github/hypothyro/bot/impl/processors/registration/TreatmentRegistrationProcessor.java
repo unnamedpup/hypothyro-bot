@@ -16,14 +16,9 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 @Slf4j
 public class TreatmentRegistrationProcessor implements RegistrationProcessor{
 
-    @Autowired
-    private StateMachineCache stateCache;
-
-    @Autowired
-    private RegistrationCache registrationCache;
-
-    @Autowired
-    private RegistrationKeyboards keyboards;
+    @Autowired private StateMachineCache stateCache;
+    @Autowired private RegistrationCache registrationCache;
+    @Autowired private RegistrationKeyboards keyboards;
 
     public SendMessage processRegistrationField(Message msg) {
         Long patientId = msg.getChatId();

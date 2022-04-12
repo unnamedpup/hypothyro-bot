@@ -1,8 +1,5 @@
 package com.github.hypothyro.bot.impl.processors.registration;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import com.github.hypothyro.bot.cache.registration.RegistrationCache;
@@ -11,6 +8,7 @@ import com.github.hypothyro.bot.keyboards.registration.RegistrationKeyboards;
 import com.github.hypothyro.bot.processors.RegistrationProcessor;
 import com.github.hypothyro.domain.Patient;
 import com.github.hypothyro.domain.PatientState;
+import com.github.hypothyro.service.impl.DefaultDateChecker;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,8 +25,6 @@ public class DobRegistrationProcessor implements RegistrationProcessor{
     @Autowired private RegistrationCache registrationCache;
     @Autowired private RegistrationKeyboards keyboards;
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-
 
     public SendMessage processRegistrationField(Message msg) {
         log.info("RegistrationDOBProcessor");
@@ -37,7 +33,7 @@ public class DobRegistrationProcessor implements RegistrationProcessor{
         Patient patient = registrationCache.getPatientById(patientId);
 
         try {
-            Long epoch = convertStringToUnix(msg.getText());
+            Long epoch = new DefaultDateChecker(msg.getText()).getDate();
             log.info("DOB: {}", epoch);
 
             patient.setDateOfBirthday(epoch);
@@ -52,14 +48,6 @@ public class DobRegistrationProcessor implements RegistrationProcessor{
 
     }
 
-
-    private Long convertStringToUnix(String in) {
-        LocalDate date = LocalDate.parse(in.replace("\\s", "").replace("(-)|(\\/)", "."), formatter);
-        log.info("Date: {}", date);
-        ZoneId zoneId = ZoneId.systemDefault();
-        log.info("ZondeId: {}", zoneId);
-        return date.atStartOfDay(zoneId).toEpochSecond();
-    }
 
     private SendMessage ok(Long patientId) {
         SendMessage toSend = new SendMessage();
@@ -76,7 +64,7 @@ public class DobRegistrationProcessor implements RegistrationProcessor{
     private SendMessage error(Long patientId) {
         SendMessage toSend = new SendMessage();
         toSend.setChatId(patientId.toString());
-        toSend.setText("Wrong date format! Must be dd.mm.yyyy");
+        toSend.setText("Неправильный формат данных.(введите в формате дд.мм.гггг)");
 
         return toSend;
     }

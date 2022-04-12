@@ -18,7 +18,7 @@ public class RegistrationConfig {
     public final String thsDate = "Когда вы сдали анализ ?";
     public final String thsRes = "Введите значение ТТГ (в мкМЕ/мл):";
 
-    public final String noTtg = "В срок 4-8 недель после операции на щитовидной железе следует определить уровень ТТГ для оценки необходимости";
+    public final String noTtg = "В срок 4-8 недель после операции на щитовидной железе следует определить уровень ТТГ для оценки необходимости ";
     public final String msgNoPretreatment = "назначения";
     public final String msgYesPretreatment = "коррекции терапии";
 
