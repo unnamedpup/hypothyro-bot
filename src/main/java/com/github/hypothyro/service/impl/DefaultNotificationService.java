@@ -32,7 +32,7 @@ public class DefaultNotificationService implements NotificationService {
     public void updateNotifications() {
         compareWorkersPool.scheduleAtFixedRate(() -> {
                 doUpdate();
-        }, 0, 30, TimeUnit.MILLISECONDS);
+        }, 0, 30, TimeUnit.MINUTES);
     }
 
     private void doUpdate() {

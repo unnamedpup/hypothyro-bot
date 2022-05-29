@@ -9,6 +9,7 @@ import java.util.Set;
 import com.github.hypothyro.bot.cache.registration.RegistrationCache;
 import com.github.hypothyro.bot.cache.states.StateMachineCache;
 import com.github.hypothyro.bot.config.RegistrationConfig;
+import com.github.hypothyro.bot.keyboards.control.ControlKeyboards;
 import com.github.hypothyro.bot.processors.RegistrationCallbackQueryProcessor;
 import com.github.hypothyro.domain.Notification;
 import com.github.hypothyro.domain.Patient;
@@ -30,6 +31,7 @@ public class ThsCallbackQueryProcessor implements RegistrationCallbackQueryProce
     @Autowired private RegistrationConfig config;
     @Autowired private PatientRepository repository;
     @Autowired private NotificationRepository notificationRepository;
+    @Autowired private ControlKeyboards controlKeyboards;
 
     private final int WEEK_IN_SECONDS = 60 * 60 * 24 * 7;
     private final int MONTH_IN_SECONDS = WEEK_IN_SECONDS * 4;
@@ -102,6 +104,7 @@ public class ThsCallbackQueryProcessor implements RegistrationCallbackQueryProce
         boolean hasPretreatment = patient.getPretreatment() != 0;
         String endOfMsg = hasPretreatment ? config.msgYesPretreatment : config.msgNoPretreatment;
         toSend.setText(config.noTtg + " " + endOfMsg);
+        toSend.setReplyMarkup(controlKeyboards.controlButtons);
 
         return toSend;
     }

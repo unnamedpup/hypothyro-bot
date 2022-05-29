@@ -3,6 +3,7 @@ package com.github.hypothyro.bot.impl.processors.registration.callback;
 import com.github.hypothyro.bot.cache.registration.RegistrationCache;
 import com.github.hypothyro.bot.cache.states.StateMachineCache;
 import com.github.hypothyro.bot.config.RegistrationConfig;
+import com.github.hypothyro.bot.keyboards.control.ControlKeyboards;
 import com.github.hypothyro.bot.processors.RegistrationCallbackQueryProcessor;
 import com.github.hypothyro.domain.Patient;
 import com.github.hypothyro.domain.PatientState;
@@ -23,6 +24,7 @@ public class RadProcessor implements RegistrationCallbackQueryProcessor {
     @Autowired private RegistrationCache registrationCache;
     @Autowired private PatientRepository repository;
     @Autowired private RegistrationConfig config;
+    @Autowired private ControlKeyboards controlKeyboards;
 
     @Override
     public SendMessage processRegistrationCallback(CallbackQuery callback) {
@@ -42,6 +44,7 @@ public class RadProcessor implements RegistrationCallbackQueryProcessor {
             toSend.setText("Контроль через 3 месяца.");
             patient.setCheckinterval(3.0);
         }
+        toSend.setReplyMarkup(controlKeyboards.controlButtons);
 
         // End of registration
         repository.save(patient);

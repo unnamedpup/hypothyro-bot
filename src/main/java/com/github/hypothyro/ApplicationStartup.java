@@ -20,6 +20,7 @@ public class ApplicationStartup {
 
     @Autowired private HypothyroBot bot;
     @Autowired private NotificationService notifications;
+    private boolean l = true;
 
     /**
      * This event is executed as late as conceivably possible to indicate that 
@@ -31,7 +32,11 @@ public class ApplicationStartup {
         try {
             log.info("Starting Hypothyro bot...");
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-            botsApi.registerBot(bot);
+
+            if (l == true) {
+                botsApi.registerBot(bot);
+            }
+
             notifications.updateNotifications();
             log.info("Bot started !");
         } catch (TelegramApiException e) {

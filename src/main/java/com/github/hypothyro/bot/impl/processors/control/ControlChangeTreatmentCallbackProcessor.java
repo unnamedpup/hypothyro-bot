@@ -43,13 +43,12 @@ public class ControlChangeTreatmentCallbackProcessor implements ControlCallbackP
             return toSend;
         }
 
-        toSend.setText("Введите дозу после операции (в мкг)::");
+        toSend.setText("Введите дозу после операции (в мкг):");
 
         String drugName = callback.getData().replace("CONTROL_PRETREATMENT_NAME_", "").toLowerCase();
         patient.setPretreatmentDrug(drugName);
 
         stateCache.setState(patientId, PatientState.AWAY_CHANGE_TREATMENT_MKG);
-
         patientsCache.savePatient(patient);
 
         notificationRepository.deleteByPatientId(patientId);

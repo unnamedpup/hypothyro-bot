@@ -5,6 +5,7 @@ import java.time.format.DateTimeParseException;
 import com.github.hypothyro.bot.cache.registration.RegistrationCache;
 import com.github.hypothyro.bot.cache.states.StateMachineCache;
 import com.github.hypothyro.bot.config.RegistrationConfig;
+import com.github.hypothyro.bot.keyboards.control.ControlKeyboards;
 import com.github.hypothyro.bot.processors.RegistrationProcessor;
 import com.github.hypothyro.domain.Patient;
 import com.github.hypothyro.domain.PatientState;
@@ -27,6 +28,7 @@ public class TtgDateProcessor implements RegistrationProcessor {
     @Autowired private RegistrationCache registrationCache;
     @Autowired private RegistrationConfig config;
     @Autowired private PatientRepository repository;
+    @Autowired private ControlKeyboards controlKeyboards;
 
 
     @Override
@@ -77,6 +79,7 @@ public class TtgDateProcessor implements RegistrationProcessor {
         SendMessage toSend = new SendMessage();
         toSend.setChatId(patientId.toString());
         toSend.setText("Нужно сдать новый анализ");
+        toSend.setReplyMarkup(controlKeyboards.controlButtons);
         stateCache.setState(patientId, PatientState.AWAY);
 
         return toSend;

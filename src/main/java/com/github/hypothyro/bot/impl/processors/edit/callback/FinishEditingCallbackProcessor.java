@@ -77,9 +77,9 @@ public class FinishEditingCallbackProcessor implements EditCallbackProcessor {
 
         if (patient.getOperation().equals("all")) {
             if (patient.getTreatment() == 0) {
-                sb.append("Пациенты без щитовидной железы должны получать заместительную терапию, пожалуйста обратитесь к своему врачу за разяснениями");
+                sb.append("\nПациенты без щитовидной железы должны получать заместительную терапию, пожалуйста обратитесь к своему врачу за разяснениями");
             } else if (isDoseNormal(patient)) {
-                sb.append("Возможно, эта дозировка недостаточная для вас.");
+                sb.append("\nВозможно, эта дозировка недостаточная для вас.");
             }
         }
         return sb.toString();

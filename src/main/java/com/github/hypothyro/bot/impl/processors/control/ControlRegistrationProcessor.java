@@ -63,10 +63,15 @@ public class ControlRegistrationProcessor implements ControlProcessor {
                 patient = repository.findById(msg.getChatId());
 
                 if (patient.isPresent()) {
-                    LocalDate date = new DefaultDateChecker(patient.get().getThsDate()).getDateAsLocalDate();
-                    double result = patient.get().getThsResult();
+                    if (patient.get().getThsDate() == null || patient.get().getThsResult() == null) {
+                        toSend.setText("Результат не найден в базе :(");
+                    } else {
+                        LocalDate date = new DefaultDateChecker(patient.get().getThsDate()).getDateAsLocalDate();
+                        double result = patient.get().getThsResult();
+                    
+                        toSend.setText("Результат анализа ТТГ:\n\nДата: " + date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\nЗначение: " + result);
+                    }
 
-                    toSend.setText("Результат анализа ТТГ:\n\nДата: " + date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\nЗначение: " + result);
                 } else {
                     toSend.setText("Вас нет в базе");
                 }

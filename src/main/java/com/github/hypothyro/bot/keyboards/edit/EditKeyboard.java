@@ -40,6 +40,7 @@ public class EditKeyboard {
     );
 
     public InlineKeyboardMarkup constructEditKeyboard(Patient patient) {
+        log.info("Patient: {}", patient);
         InlineKeyboardMarkup editKeyboard = new InlineKeyboardMarkup();
 
 
@@ -83,7 +84,11 @@ public class EditKeyboard {
         btn6.setCallbackData(EditCallback.EDIT_PRETREATMENT_MENU.toString());
 
         InlineKeyboardButton btn7 = new InlineKeyboardButton();
-        btn7.setText("Название препарата до операции: " + drugs.get(patient.getPretreatmentDrug()));
+        if (patient.getPretreatmentDrug() == null) {
+            btn7.setText("Название препарата до операции: препарат не был указан");
+        } else {
+            btn7.setText("Название препарата до операции: " + drugs.get(patient.getPretreatmentDrug()));
+        }
         btn7.setCallbackData(EditCallback.EDIT_PRETREATMENT_DRUG_MENU.toString());
 
         InlineKeyboardButton btn8 = new InlineKeyboardButton();
@@ -99,7 +104,11 @@ public class EditKeyboard {
         btn10.setCallbackData(EditCallback.EDIT_TREATMENT_MENU.toString());
 
         InlineKeyboardButton btn11 = new InlineKeyboardButton();
-        btn11.setText("Название препарата после операции: " + drugs.get(patient.getTreatmentDrug()));
+        if (patient.getTreatmentDrug() == null) {
+            btn11.setText("Название препарата после операции: препарат не был указан");
+        } else {
+            btn11.setText("Название препарата после операции: " + drugs.get(patient.getTreatmentDrug()));
+        }
         btn11.setCallbackData(EditCallback.EDIT_TREATMENT_DRUG_MENU.toString());
 
         InlineKeyboardButton btn12 = new InlineKeyboardButton();

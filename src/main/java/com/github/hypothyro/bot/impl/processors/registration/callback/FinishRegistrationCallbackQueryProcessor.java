@@ -9,6 +9,7 @@ import java.util.Set;
 import com.github.hypothyro.bot.cache.registration.RegistrationCache;
 import com.github.hypothyro.bot.cache.states.StateMachineCache;
 import com.github.hypothyro.bot.config.RegistrationConfig;
+import com.github.hypothyro.bot.keyboards.control.ControlKeyboards;
 import com.github.hypothyro.bot.keyboards.registration.RegistrationKeyboards;
 import com.github.hypothyro.bot.processors.RegistrationCallbackQueryProcessor;
 import com.github.hypothyro.domain.Notification;
@@ -37,6 +38,7 @@ public class FinishRegistrationCallbackQueryProcessor implements RegistrationCal
     @Autowired private StateMachineCache stateCache;
     @Autowired private RegistrationConfig config;
     @Autowired private NotificationRepository notificationRepository;
+    @Autowired private ControlKeyboards controlKeyboards;
 
     private final int WEEK_IN_SECONDS = 60 * 60 * 24 * 7;
     private final int MONTH_IN_SECONDS = WEEK_IN_SECONDS * 4;
@@ -57,6 +59,7 @@ public class FinishRegistrationCallbackQueryProcessor implements RegistrationCal
             registrationCache.deletePatientById(msg.getChatId());
             repository.save(newPatient);
             toSend.setText(processEvaluation(newPatient));
+            toSend.setReplyMarkup(controlKeyboards.controlButtons);
             notifyPatient(newPatient);
 
             stateCache.setState(msg.getChatId(), PatientState.AWAY);
@@ -76,9 +79,9 @@ public class FinishRegistrationCallbackQueryProcessor implements RegistrationCal
 
         if (patient.getOperation().equals("all")) {
             if (patient.getTreatment() == 0) {
-                sb.append("Пациенты без щитовидной железы должны получать заместительную терапию, пожалуйста обратитесь к своему врачу за разяснениями");
+                sb.append("\nПациенты без щитовидной железы должны получать заместительную терапию, пожалуйста обратитесь к своему врачу за разяснениями");
             } else if (isDoseNormal(patient)) {
-                sb.append("Возможно, эта дозировка недостаточная для вас.");
+                sb.append("\nВозможно, эта дозировка недостаточная для вас.");
             }
         }
         return sb.toString();

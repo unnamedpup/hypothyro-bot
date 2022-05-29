@@ -23,11 +23,9 @@ public class StartCommandProcessor implements CommandProcessor {
         SendMessage toSend = new SendMessage();
         toSend.setChatId(msg.getChatId().toString());
         toSend.setText("Привет, я бот для наблюдения за функцией щитовидной железы у оперированных пациентов или контроля заместительной терапии. Все рекомендации бота не являются врачебными решениями и должны рассматриваться, как повод к консультации специалиста. Давай знакомиться! Введите ваше имя");
-        // toSend.setReplyMarkup(keyboards.controlButtons);
 
         log.info("StartCommandProcessor");
         stateCache.setState(msg.getChatId(), PatientState.REGISTRATION_NAME);
-        // stateCache.setState(msg.getChatId(), PatientState.AWAY);
 
         return toSend;
     }
