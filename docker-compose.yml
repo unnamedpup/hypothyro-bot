@@ -24,7 +24,7 @@ services:
     environment:
       POSTGRES_USER: postgres # The PostgreSQL user (useful to connect to the database)
       POSTGRES_PASSWORD: password # The PostgreSQL password (useful to connect to the database)
-      POSTGRES_DB: postgres # The PostgreSQL default database (automatically created at first launch)
+      POSTGRES_DB: hypothyro # The PostgreSQL default database (automatically created at first launch)
       POSTGRES_HOST_AUTH_METHOD: trust
 
   bot:
@@ -34,7 +34,7 @@ services:
     depends_on:
       - database
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/hypothyro
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
